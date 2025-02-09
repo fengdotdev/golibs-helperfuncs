@@ -60,3 +60,12 @@ func TestRemoteRes_JPG(t *testing.T) {
 	//TODO - check if it is a valid image
 
 }
+
+func TestRemoteRes_404(t *testing.T) {
+
+	url := "https://www.google.cl/microsoftpwned.jpg"
+	data, err := web.GetRemoteResource(url)
+
+	assert.NotNil(t, err)
+	assert.Equal(t, 0, len(data))
+}

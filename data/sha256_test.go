@@ -18,11 +18,15 @@ const (
 func TestValidateSHA256(t *testing.T) {
 	assert.Nil(t, data.ValidateSHA256(foo, fooHash))
 	assert.Nil(t, data.ValidateSHA256(bar, barHash))
+	assert.NotNil(t, data.ValidateSHA256(foo, barHash))
+	assert.NotNil(t, data.ValidateSHA256(bar, fooHash))
 }
 
 func TestValidateSHA256Bytes(t *testing.T) {
 	assert.Nil(t, data.ValidateSHA256Bytes([]byte(foo), fooHash))
 	assert.Nil(t, data.ValidateSHA256Bytes([]byte(bar), barHash))
+	assert.NotNil(t, data.ValidateSHA256Bytes([]byte(foo), barHash))
+	assert.NotNil(t, data.ValidateSHA256Bytes([]byte(bar), fooHash))
 }
 
 func TestGetSHA256(t *testing.T) {
