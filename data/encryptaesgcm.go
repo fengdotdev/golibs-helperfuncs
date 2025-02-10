@@ -1,17 +1,16 @@
 package data
 
-import "crypto/aes"
-import "golang.org/x/crypto/scrypt"
+import (
+	//"crypto/aes"
 
+	"golang.org/x/crypto/scrypt"
+)
 
 type EncryptorAES256GCM struct {
 	key []byte
 	aad []byte
 }
 
-func generateSalt() ([]byte, error) {
-	return nil, nil
-}
 
 func generateKey(password string, salt []byte) ([]byte, error) {
 	const (
@@ -30,39 +29,38 @@ func generateKey(password string, salt []byte) ([]byte, error) {
 
 // NewEncryptorAES256GCM creates a new EncryptorAES256GCM with the given password and salt.
 func NewEncryptorAES256GCM(password string, salt []byte) *EncryptorAES256GCM {
-
-	return &EncryptorAES256GCM{password: password, salt: salt, aad: nil}
+	panic("Not implemented NewEncryptorAES256GCM")
 }
 
 func NewEncryptorAES256GCMWithAAD(password string, salt []byte, aad []byte) *EncryptorAES256GCM {
-	return &EncryptorAES256GCM{password: password, salt: salt, aad: aad}
+	panic("Not implemented NewEncryptorAES256GCMWithAAD")
 }
 
 func NewEncryptorAES256GCMNoSalt(password string) (encryptor *EncryptorAES256GCM, salt []byte) {
-	salt, _ = generateSalt()
-	return &EncryptorAES256GCM{password: password, salt: salt, aad: nil}, salt
+	panic("Not implemented NewEncryptorAES256GCMNoSalt")
+
+	
 }
 
 func NewEncryptorAES256GCMNoSaltWithAAD(password string, aad []byte) (encryptor *EncryptorAES256GCM, salt []byte) {
-	salt, _ = generateSalt()
-	return &EncryptorAES256GCM{password: password, salt: salt, aad: aad}, salt
+	panic("Not implemented NewEncryptorAES256GCMNoSaltWithAAD")
+
 }
 
 func (e *EncryptorAES256GCM) Encrypt(data []byte) ([]byte, error) {
+	panic("Not implemented Encrypt")
 
-	block, err := aes.NewCipher()
-	if err != nil {
-		return nil, nil, err
-	}
 
 }
 
 func (e *EncryptorAES256GCM) Decrypt(data []byte) ([]byte, error) {
+	panic("Not implemented Decrypt")
 	return nil, nil
 }
 
 func (e *EncryptorAES256GCM) GenNonce() ([]byte, error) {
 
+	panic("Not implemented GenNonce")
 }
 
 func (e *EncryptorAES256GCM) GenKey() ([]byte, error) {
