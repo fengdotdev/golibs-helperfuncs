@@ -4,13 +4,18 @@ import { randomBytes, createCipheriv, createDecipheriv } from "crypto";
 
 // Typically you would store or derive your key securely.
 // Here, we randomly generate a 256-bit key for the demo.
-const key = randomBytes(32);  // AES-256 key (32 bytes)
+const key: Buffer = randomBytes(32);  // AES-256 key (32 bytes)
 
 // For AES-GCM, a 12-byte IV (nonce) is typical.
 // NEVER reuse the same key+IV pair for more than one message.
-const iv = randomBytes(12);
+const iv: Buffer = randomBytes(12);
 
-function encryptAESGCM(plaintext) {
+interface EncryptionResult {
+  encryptedBuffer: Buffer;
+  authTag: Buffer;
+}
+
+function encryptAESGCM(plaintext: string): EncryptionResult {
   // Create cipher
   const cipher = createCipheriv("aes-256-gcm", key, iv);
 
@@ -19,14 +24,14 @@ function encryptAESGCM(plaintext) {
     cipher.update(plaintext, "utf8"),
     cipher.final()
   ]);
-  
+
   // GCM produces an authentication tag that we must keep
   const authTag = cipher.getAuthTag();
 
   return { encryptedBuffer, authTag };
 }
 
-function decryptAESGCM(encryptedBuffer, authTag) {
+function decryptAESGCM(encryptedBuffer: Buffer, authTag: Buffer): string {
   // Create decipher
   const decipher = createDecipheriv("aes-256-gcm", key, iv);
 
@@ -51,7 +56,7 @@ console.log("IV (hex):         ", iv.toString("hex"));
 const message = "Hello from Bun with AES-256-GCM!";
 const { encryptedBuffer, authTag } = encryptAESGCM(message);
 
-console.log("Encrypted (hex):", encryptedBuffer.toString("hex"));
+console.log("Encrypted (hex): ", encryptedBuffer.toString("hex"));
 console.log("Auth Tag (hex):  ", authTag.toString("hex"));
 
 const decryptedMessage = decryptAESGCM(encryptedBuffer, authTag);

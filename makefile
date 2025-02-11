@@ -10,12 +10,12 @@ test:
 
 
 
-PLAYGROUD = ./openssl_test
+PLAYGROUD = ./sandbox/openssl_test
 FILE = hello.txt
 ENCODE = test.enc
 DECODE = test.dec
 PASSWORD = password
-
+# openssl dont support the gcm mode for aes-256 
 o:	
 	rm -rf ${PLAYGROUD}/${ENCODE} ${PLAYGROUD}/${DECODE}
 	openssl enc -aes-256-gcm -in  ${PLAYGROUD}/${FILE} -out ${PLAYGROUD}/${ENCODE} -k ${PASSWORD}
@@ -23,3 +23,4 @@ o:
 
 sand:
 	go run ./sandbox/aesgcm/main.go
+
