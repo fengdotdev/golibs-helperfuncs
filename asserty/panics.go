@@ -11,3 +11,9 @@ func AssertValue(value interface{}, expected interface{}) {
 		panic("Assertion failed")
 	}
 }
+
+func AssertNoError(err error) {
+	if err != nil {
+		panic("Assertion NoError failed" + err.Error())
+	}
+}

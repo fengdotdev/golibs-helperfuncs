@@ -6,3 +6,20 @@ updatev:
 
 test:
 	go test -v ./...
+
+
+
+
+PLAYGROUD = ./openssl_test
+FILE = hello.txt
+ENCODE = test.enc
+DECODE = test.dec
+PASSWORD = password
+
+o:	
+	rm -rf ${PLAYGROUD}/${ENCODE} ${PLAYGROUD}/${DECODE}
+	openssl enc -aes-256-gcm -in  ${PLAYGROUD}/${FILE} -out ${PLAYGROUD}/${ENCODE} -k ${PASSWORD}
+	openssl enc -d --aes-256-gcm -in ${PLAYGROUD}/${ENCODE} -out ${PLAYGROUD}/${DECODE} -k ${PASSWORD}
+
+sand:
+	go run ./sandbox/aesgcm/main.go
