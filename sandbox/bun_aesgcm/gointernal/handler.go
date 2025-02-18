@@ -14,7 +14,7 @@ func ENCODED(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println(queryValue)
 
-	key, err := Decode64(queryValue)
+	key, err := Decode64Bytes(queryValue)
 	if err != nil {
 		http.Error(w, "Error al decodificar la clave", http.StatusBadRequest)
 		return
@@ -22,7 +22,7 @@ func ENCODED(w http.ResponseWriter, r *http.Request) {
 
 	///----ONLY FOR TESTING PURPOSES
 
-	var dataobj EncodeAESGCM_Object
+	var payload Payload
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -31,31 +31,36 @@ func ENCODED(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	err = json.Unmarshal(body, &dataobj)
+	err = json.Unmarshal(body, &payload)
 	if err != nil {
 		http.Error(w, "Error al parsear JSON", http.StatusBadRequest)
 		return
 	}
 
-	fmt.Println(dataobj)
+	fmt.Println(payload)
 	//decode
 
-	data, err := dataobj.Data()
+	data, err := payload.GetCypher()
 	if err != nil {
 		http.Error(w, "Error al decodificar data", http.StatusBadRequest)
 		return
 	}
 
-	iv, err := dataobj.IV()
+	iv, err := payload.Additionaldata.GetIV()
 	if err != nil {
 		http.Error(w, "Error al decodificar iv", http.StatusBadRequest)
 		return
 	}
 
+	addjson, err := payload.GetAdditionalDataAsBinary()
+	if err != nil {
+		http.Error(w, "Error al decodificar addjson", http.StatusBadRequest)
+		return
+	}
 
 	//decrypt
 
-	plainText, err := DecodeAESGCM(key, data, iv , nil)
+	plainText, err := DecryptAESGCM(key, iv, data, addjson)
 	if err != nil {
 		http.Error(w, "Error al desencriptar", http.StatusBadRequest)
 		return

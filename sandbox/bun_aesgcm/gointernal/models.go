@@ -1,29 +1,43 @@
 package gointernal
 
-import "encoding/base64"
+import (
+	"encoding/base64"
+	"encoding/json"
+)
 
-type EncodeAESGCM_Object struct {
-	DATA64    string `json:"data64"`
-	IV64      string `json:"iv64"`
-	AUTHTAG64 string `json:"authtag64"`
+type AdditionalData struct {
+	Algorithm string `json:"algorithm"` // AES
+	Mode      string `json:"mode"`      // GCM
+	Strength  int    `json:"strength"`  // 256
+	IV64      string `json:"iv64"`      // ex: 32bVr0KW+Cj5pPLB
 }
 
-func NewEncodeAESGCM_Object(data []byte, iv []byte, authtag []byte) EncodeAESGCM_Object {
-	return EncodeAESGCM_Object{
-		DATA64:    base64.StdEncoding.EncodeToString(data),
-		IV64:      base64.StdEncoding.EncodeToString(iv),
-		AUTHTAG64: base64.StdEncoding.EncodeToString(authtag),
+func (a *AdditionalData) GetIV() ([]byte, error) {
+	return base64.StdEncoding.DecodeString(a.IV64)
+}
+
+type Payload struct {
+	Cypher64       string         `json:"cypher64"`
+	Additionaldata AdditionalData `json:"additionaldata"`
+}
+
+func (p *Payload) GetCypher() ([]byte, error) {
+	return base64.StdEncoding.DecodeString(p.Cypher64)
+}
+
+func (p *Payload) GetAdditionalDataAsBinary() ([]byte, error) {
+	jsonData, err := json.Marshal(p.Additionaldata)
+	if err != nil {
+		return nil, err
 	}
+	return jsonData, nil
 }
 
-func (e *EncodeAESGCM_Object) Data() ([]byte, error) {
-	return base64.StdEncoding.DecodeString(e.DATA64)
+type PayloadWithKey struct {
+	Key64   string  `json:"key64"`
+	Payload Payload `json:"payload"`
 }
 
-func (e *EncodeAESGCM_Object) IV() ([]byte, error) {
-	return base64.StdEncoding.DecodeString(e.IV64)
-}
-
-func (e *EncodeAESGCM_Object) AuthTag() ([]byte, error) {
-	return base64.StdEncoding.DecodeString(e.AUTHTAG64)
+func (p *PayloadWithKey) GetKey() ([]byte, error) {
+	return base64.StdEncoding.DecodeString(p.Key64)
 }
