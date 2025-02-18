@@ -10,17 +10,27 @@ import (
 	"github.com/fengdotdev/golibs-testing/assert"
 )
 
+type additionalData struct {
+	Algorithm string `json:"algorithm"` // AES
+	Mode      string `json:"mode"`      // GCM
+	Strength  int    `json:"strength"`  // 256
+	IV64      string `json:"iv64"`      // ex: 32bVr0KW+Cj5pPLB
+}
+
 const (
 	text1          = "Hola Mundo"
 	key64_1        = "ZOkodKmzHIMwBI3RtvRlSo4dKQWU5bM3+lKKIvmSy3w="
 	iv64_1         = "32bVr0KW+Cj5pPLB"
 	ciphertext64_1 = "WKBqzxm+x6R2sg5+0e2XLXGpC9QuY68wfiQ="
 
-	text2          = "Hello from Bun with AES-256-GCM!"
-	key64_2        = "TH+35QFhuho+Cb4AR8IXtvbbLRtf+vsi4nSwFFEyxgY="
-	iv64_2         = "Kfsl1u9tlqLiHudv"
-	ciphertext64_2 = "RxrK2/BDLwz6bH6TSmHw/mdgNXzObnp5+6LJnhgX9nk="
+	text2              = "to go server"
+	key64_2            = "T26jQLcmz49b/UU0exWOblxdEaBlSED96TPlnl89U9k="
+	iv64_2             = "p2C0G98HwCajYXur"
+	ciphertext64_2     = "AjIfZOH5FGwvGea9LMCRpal6DjyDRPksZpXJ0A=="
+	additionalData64_2 = "eyJhbGdvcml0aG0iOiJBRVMiLCJtb2RlIjoiR0NNIiwic3RyZW5ndGgiOjI1NiwiaXY2NCI6InAyQzBHOThId0NhallYdXIifQ=="
 )
+
+
 
 func TestAESGCM(t *testing.T) {
 
@@ -167,8 +177,9 @@ func TestAESGCM_WithBase64Kwowns2(t *testing.T) {
 	assert.Nil(t, err)
 	ciphertext2, err := data.Decode64Bytes(ciphertext64_2)
 	assert.Nil(t, err)
-
-	decrypted, err := secret.DecryptAESGCM(key2, iv2, ciphertext2, nil)
+	additionalData2,err:= data.Decode64Bytes(additionalData64_2)
+	assert.Nil(t, err)
+	decrypted, err := secret.DecryptAESGCM(key2, iv2, ciphertext2, additionalData2)
 	assert.Nil(t, err)
 	assert.NotNil(t, decrypted)
 

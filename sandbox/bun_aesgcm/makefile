@@ -9,5 +9,3 @@ runjs:
 	bun run main.js
 
 
-go:
-	go run main.go

@@ -1,147 +1,145 @@
 #!/usr/bin/env bun
 
-import { randomBytes, createCipheriv, createDecipheriv } from "crypto";
-
-// Typically you would store or derive your key securely.
-// Here, we randomly generate a 256-bit key for the demo.
-const somekey: Buffer = randomBytes(32);  // AES-256 key (32 bytes)
-
-// For AES-GCM, a 12-byte IV (nonce) is typical.
-// NEVER reuse the same key+IV pair for more than one message.
-const someiv: Buffer = randomBytes(12);
-
-interface EncryptionResult {
-  encryptedBuffer: Buffer;
-  authTag: Buffer;
-}
-
-class EncodeAESGCMObject {
-  data64: string;
-  iv64: string;
-  authtag64: string;
-
-  constructor(data: Buffer, iv: Buffer, authtag: Buffer) {
-    this.data64 = EncodeAESGCMObject.toBase64(data);
-    this.iv64 = EncodeAESGCMObject.toBase64(iv);
-    this.authtag64 = EncodeAESGCMObject.toBase64(authtag);
-  }
-
-  static toBase64(buffer: Buffer): string {
-    return buffer.toString("base64");
-  }
-
-  static fromBase64(base64String: string): Buffer {
-    return Buffer.from(base64String, "base64");
-  }
-
-  getData(): Buffer {
-    return EncodeAESGCMObject.fromBase64(this.data64);
-  }
-
-  getIV(): Buffer {
-    return EncodeAESGCMObject.fromBase64(this.iv64);
-  }
-
-  getAuthTag(): Buffer {
-    return EncodeAESGCMObject.fromBase64(this.authtag64);
-  }
-}
+import { GenerateKey,GenerateIV, encryptAESGCM, Encode64, additionalDataToBuffer, sendDataToAPI, Decode64, decryptAESGCM } from "./helpers";
+import { AdditionalData, Payload, Result } from "./models";
 
 
 
+async function ToApi(secretmessage: string) {
+
+  console.log("<----------To API---------------->");
+
+  const somekey:Buffer = GenerateKey();
+  const somekey64 = Encode64(somekey);
+
+  const someiv: Buffer = GenerateIV();
+  const someiv64 = Encode64(someiv);
+  
+  const plaintext = secretmessage;
+  console.log("original data: "+plaintext);
+  let data = Buffer.from(plaintext);
+  
+  const url = "http://localhost:8080/encoded";
+
+  const additionalData: AdditionalData = {
+    algorithm: "AES",
+    mode: "GCM",
+    strength: 256,
+    iv64: Encode64(someiv)
+  };
+
+  console.log("key64: " + somekey64);
+  console.log("iv64: " + someiv64);
+  console.log ("data64: " + Encode64(data));
+  console.log("additional data: "+ JSON.stringify(additionalData));
+  console.log("additional data64: "+ Encode64(additionalDataToBuffer(additionalData)));
 
 
+  const addbuffer = additionalDataToBuffer(additionalData);
 
-function encryptAESGCM64(key:Buffer,plaintext: string,iv:Buffer):{ obj:EncodeAESGCMObject,key64:string} {
-  // Create cipher
-  const cipher = createCipheriv("aes-256-gcm", key, iv);
+  const result:Result = encryptAESGCM(somekey,someiv,data,addbuffer);
 
-  // Encrypt the data
-  const encryptedBuffer = Buffer.concat([
-    cipher.update(plaintext, "utf8"),
-    cipher.final()
-  ]);
-
-  // GCM produces an authentication tag that we must keep
-  const authTag = cipher.getAuthTag();
-
-  return { obj: new EncodeAESGCMObject(encryptedBuffer, iv, authTag), key64: key.toString("base64") };
-}
+  const payload: Payload = {
+    cypher64: Encode64(result.Data),
+    additionaldata: additionalData
+  };
 
 
-function decryptAESGCM64(Key64:string,obj:EncodeAESGCMObject): string {
+  const response =await  sendDataToAPI(payload,somekey64,url);
 
- const key = Buffer.from(Key64, "base64");
 
-  // Create decipher
-  const decipher = createDecipheriv("aes-256-gcm", key, obj.getIV());
-
-  // Provide the tag that was generated during encryption
-  decipher.setAuthTag(obj.getAuthTag());
-
-  // Decrypt the data
-  const decryptedBuffer = Buffer.concat([
-    decipher.update(obj.getData()),
-    decipher.final()
-  ]);
-
-  return decryptedBuffer.toString("utf8");
+  console.log("Response: ", response);
 }
 
 
 
-async function sendDataToAPI<T>(data: T, key: string, endpoint: string): Promise<string> {
-  try {
-      const url = new URL(endpoint);
-      url.searchParams.append("key", key); // Agrega el query param 'key'
+function OwnValues() {
 
-      const response = await fetch(url.toString(), {
-          method: "POST",
-          headers: {
-              "Content-Type": "application/json"
-          },
-          body: JSON.stringify(data) // Convierte la clase en JSON
-      });
+  console.log("<----------Own values---------------->");
 
-      if (!response.ok) {
-          throw new Error(`Error: ${response.status} ${response.statusText}`);
-      }
+  const key = GenerateKey();
+  const iv = GenerateIV();
+  const plaintext = "Hello, world!";
+  console.log("original data: "+plaintext);
+  const data = Buffer.from(plaintext);
 
-      return await response.text(); // Devuelve la respuesta del servidor como texto
-  } catch (error) {
-      console.error("Error en la solicitud:", error);
-      throw error; // Relanza el error para manejarlo externamente si es necesario
+
+  //additionalData null
+
+  const result:Result = encryptAESGCM(key,iv,data,null);
+
+  if (result.MayErr) {
+    console.error("Error: ", result.MayErr.Error());
   }
+
+
+  const decryptResult:Result = decryptAESGCM(key,iv,result.Data,null);
+
+  if (decryptResult.MayErr) {
+    console.error("Error: ", decryptResult.MayErr.Error());
+  }
+
+  console.log("Decrypt Data: ", decryptResult.Data.toString());
+
+  if (decryptResult.Data.toString() === plaintext) {
+
+    console.log("Success!");
+  }
+  else {
+    console.error("Error: Decrypted data does not match plaintext");
+  }
+}
+
+
+function KnownValues(){
+  console.log("<----------Known values---------------->");
+	const text1          = "Hola Mundo"
+  const key64_1        = "ZOkodKmzHIMwBI3RtvRlSo4dKQWU5bM3+lKKIvmSy3w="
+	const iv64_1         = "32bVr0KW+Cj5pPLB"
+	const ciphertext64_1 = "WKBqzxm+x6R2sg5+0e2XLXGpC9QuY68wfiQ="
+  console.log("original data: "+text1);
+
+
+  const key = Decode64(key64_1);
+  const iv = Decode64(iv64_1);
+  const ciphertext = Decode64(ciphertext64_1);
+
+
+  const result:Result = decryptAESGCM(key,iv,ciphertext,null);
+
+  if (result.MayErr) {
+    console.error("Error: ", result.MayErr.Error());
+  }
+
+  console.log("Data: ", result.Data.toString());
+
+  if (result.Data.toString() === text1) {
+    console.log("Success!");
+  }
+  else {
+    console.error("Error: Decrypted data does not match plaintext");
+  }
+
 }
 
 
 
 
-// Example usage:
+async function main()  {
+  
+  OwnValues();
+  KnownValues();
+  await ToApi("to go server");
+}
 
-console.log("AES-256-GCM Encryption Example");
-console.log("Key (hex):        ", somekey.toString("hex"));
-console.log("IV (hex):         ", someiv.toString("hex"));
-const message = "Hello from Bun with AES-256-GCM!";
-console.log("Message:          ", message);
 
-const {obj,key64} = encryptAESGCM64(somekey,message,someiv);
 
-console.log("Encrypted (base64): ", obj.data64);
-console.log("Auth Tag (base64):  ", obj.authtag64);
-console.log("IV (base64):  ", obj.iv64);
-const decryptedMessage64 = decryptAESGCM64(key64, obj);
 
-console.log("Decrypted 64 Text:   ", decryptedMessage64);
+main();
 
-const json = JSON.stringify(obj);
-console.log("key64: ", key64);
-console.log("JSON: ", json);
 
-const result = sendDataToAPI(obj, key64, "http://localhost:8080/encoded")
 
-result.then((data) => {
-  console.log("Respuesta del servidor:", data);
-}).catch((error) => {
-  console.error("Error en la solicitud:", error);
-});
+
+
+
+

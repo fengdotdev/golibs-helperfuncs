@@ -26,4 +26,4 @@ sand:
 
 
 run:
-	go run ./sandbox/aesgcm/main.go
+	go run ./sandbox/aesgcm/server/main.go
