@@ -57,10 +57,10 @@ func ENCODED(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Println("additionaldata: ", payload.Additionaldata)
-	
+
 	addjson, err := payload.GetAdditionalDataAsBinary()
 	fmt.Println("additionaldata as binary64: ", data.Encode64Bytes(addjson))
-	
+
 	if err != nil {
 		fmt.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -78,6 +78,46 @@ func ENCODED(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Println(string(plainText))
 	w.Write([]byte(plainText))
+}
+
+func Ping(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("pong"))
+}
+
+type operation struct {
+	Operation string `json:"operation"`
+	N1   int    `json:"n1"`
+	N2   int    `json:"n2"`
+}
+
+type result struct {
+	Result int `json:"result"`
+}
+
+func Add(w http.ResponseWriter, r *http.Request) {
+	var op operation
+
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	err = json.Unmarshal(body, &op)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	res := result{Result: op.N1 + op.N2}
+	resJSON, err := json.Marshal(res)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Write(resJSON)
 }
 
 func main() {
@@ -101,7 +141,10 @@ func (s *Server) Run(port string) {
 		w.Write([]byte("Hello, World!"))
 	})
 
+	http.HandleFunc("/add", Add)
+
 	http.HandleFunc("/encoded", ENCODED)
+	http.HandleFunc("/ping", Ping)
 
 	if !Assert4charsAndNumbeable(port) {
 		panic("Invalid port")
