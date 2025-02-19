@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 
 	"github.com/fengdotdev/golibs-helperfuncs/data"
@@ -81,13 +82,36 @@ func ENCODED(w http.ResponseWriter, r *http.Request) {
 }
 
 func Ping(w http.ResponseWriter, r *http.Request) {
+
+	fmt.Println("connected client at " + r.RemoteAddr + " to /ping")
+
+	fmt.Println("sending pong")
 	w.Write([]byte("pong"))
+}
+
+type Foo struct {
+	Bar string `json:"bar"`
+}
+
+func FooResource(w http.ResponseWriter, r *http.Request) {
+
+	fmt.Println("connected client at " + r.RemoteAddr + " to /foo")
+
+	foo := Foo{Bar: "baz"}
+	fooJSON, err := json.Marshal(foo)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	fmt.Println("sending foo" + string(fooJSON))
+
+	w.Write(fooJSON)
 }
 
 type operation struct {
 	Operation string `json:"operation"`
-	N1   int    `json:"n1"`
-	N2   int    `json:"n2"`
+	N1        int    `json:"n1"`
+	N2        int    `json:"n2"`
 }
 
 type result struct {
@@ -110,13 +134,25 @@ func Add(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fmt.Println("connected client at " + r.RemoteAddr + " to /add")
+	fmt.Println("operation: ", op)
+
+	if op.Operation != "add" {
+		http.Error(w, "Invalid operation", http.StatusBadRequest)
+		return
+	}
+
+	fmt.Println("n1: ", op.N1)
+	fmt.Println("n2: ", op.N2)
+	fmt.Println("result: ", op.N1+op.N2)
+
 	res := result{Result: op.N1 + op.N2}
 	resJSON, err := json.Marshal(res)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
+	w.Header().Set("Content-Type", "application/json")
 	w.Write(resJSON)
 }
 
@@ -140,18 +176,45 @@ func (s *Server) Run(port string) {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Hello, World!"))
 	})
-
+	http.HandleFunc("/404", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("404 Not Found")
+		http.Error(w, "404 Not Found", http.StatusNotFound)
+	})
 	http.HandleFunc("/add", Add)
-
+	http.HandleFunc("/foo", FooResource)
 	http.HandleFunc("/encoded", ENCODED)
 	http.HandleFunc("/ping", Ping)
 
 	if !Assert4charsAndNumbeable(port) {
 		panic("Invalid port")
 	}
+	
 
-	fmt.Println("Server running on port " + port)
+	localip,err  := getIP()
+	if err != nil {
+		fmt.Println("Could not obtain the IP address")
+	}
+	ip := localip + ":" + port
+
+	fmt.Println("Server running on " + ip)
 	http.ListenAndServe(":"+port, nil)
+}
+
+func getIP() (string, error) {
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		return "", err
+	}
+
+	for _, addr := range addrs {
+		if ipNet, ok := addr.(*net.IPNet); ok && !ipNet.IP.IsLoopback() {
+			if ip4 := ipNet.IP.To4(); ip4 != nil {
+				return ip4.String(), nil
+			}
+		}
+	}
+
+	return "", fmt.Errorf("could not obtain the IP address")
 }
 
 func Assert4charsAndNumbeable(s string) bool {
