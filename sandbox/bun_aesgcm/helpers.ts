@@ -51,10 +51,10 @@ export async function sendDataToAPI<T>(data: T, key: string, endpoint: string): 
         }
 
         console.log("Success!");
-        return await response.text(); // Devuelve la respuesta del servidor como texto
+        return await response.text(); 
     } catch (error) {
         console.error("Error:", error);
-        throw error; // Relanza el error para manejarlo externamente si es necesario
+        throw error; 
     }
   }
 
