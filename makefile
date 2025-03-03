@@ -5,7 +5,8 @@ updatev:
 		git tag v${TESTING_VERSION} && git push origin v${TESTING_VERSION}
 
 test:
-	go test -v ./...
+	go clean -testcache
+	go test -count=1 -v ./...
 
 
 

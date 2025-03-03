@@ -1,5 +1,7 @@
 package asserty
 
+import "reflect"
+
 func AssertTrue(value bool) {
 	if !value {
 		panic("Assertion failed")
@@ -7,7 +9,7 @@ func AssertTrue(value bool) {
 }
 
 func AssertValue(value interface{}, expected interface{}) {
-	if value != expected {
+	if !reflect.DeepEqual(value, expected) {
 		panic("Assertion failed")
 	}
 }
