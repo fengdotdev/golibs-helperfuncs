@@ -1,8 +1,8 @@
 # for updating the version of the project and pushing the tag to the repository
-HELPERFUNCS_VERSION = 0.0.3
+VERSION = 0.0.4
 
 updatev:
-		git tag v${HELPERFUNCS_VERSION} && git push origin v${HELPERFUNCS_VERSION}
+		git tag v${VERSION} && git push origin v${VERSION}
 
 test:
 	go clean -testcache
