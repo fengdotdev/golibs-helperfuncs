@@ -1,4 +1,4 @@
-package data
+package datum
 
 import "encoding/base64"
 

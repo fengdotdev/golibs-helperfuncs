@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/fengdotdev/golibs-helperfuncs/data"
+	"github.com/fengdotdev/golibs-helperfuncs/datum"
 	"github.com/fengdotdev/golibs-helperfuncs/secret"
 	"github.com/fengdotdev/golibs-testing/assert"
 )
@@ -86,7 +86,7 @@ func TestAESGCMwithADD(t *testing.T) {
 	iv, err := secret.GenerateIV()
 	assert.NilWithMessage(t, err, "error generating iv")
 
-	iv64 := data.Encode64Bytes(iv)
+	iv64 := datum.Encode64Bytes(iv)
 
 	add := additionaldata{
 		Algorythm: "AES",
@@ -107,7 +107,7 @@ func TestAESGCMwithADD(t *testing.T) {
 	// sent over the wire
 
 	pkg := packagedata{
-		Cypher64:       data.Encode64Bytes(ciphertext),
+		Cypher64:       datum.Encode64Bytes(ciphertext),
 		Additionaldata: add,
 	}
 
@@ -125,7 +125,7 @@ func TestAESGCMwithADD(t *testing.T) {
 	err = dec.Decode(&pkg1)
 	assert.NilWithMessage(t, err, "error decoding at receiver")
 
-	reciveCypher, err := data.Decode64Bytes(pkg1.Cypher64)
+	reciveCypher, err := datum.Decode64Bytes(pkg1.Cypher64)
 	assert.NilWithMessage(t, err, "error decoding cypher at receiver")
 	reciveadd := pkg1.Additionaldata
 	reciveaddjson, err := json.Marshal(reciveadd)
@@ -136,7 +136,7 @@ func TestAESGCMwithADD(t *testing.T) {
 	assert.Equal(t, add.Strength, reciveadd.Strength)
 	assert.Equal(t, add.IV64, reciveadd.IV64)
 
-	ivprime, err := data.Decode64Bytes(reciveadd.IV64)
+	ivprime, err := datum.Decode64Bytes(reciveadd.IV64)
 	assert.Nil(t, err)
 
 	assert.TrueWithMessage(t, bytes.Equal(iv, ivprime), "iv and ivprime are not equal")
@@ -154,11 +154,11 @@ func TestAESGCMwithADD(t *testing.T) {
 }
 
 func TestAESGCM_WithBase64Kwowns1(t *testing.T) {
-	key1, err := data.Decode64Bytes(key64_1)
+	key1, err := datum.Decode64Bytes(key64_1)
 	assert.Nil(t, err)
-	iv1, err := data.Decode64Bytes(iv64_1)
+	iv1, err := datum.Decode64Bytes(iv64_1)
 	assert.Nil(t, err)
-	ciphertext1, err := data.Decode64Bytes(ciphertext64_1)
+	ciphertext1, err := datum.Decode64Bytes(ciphertext64_1)
 	assert.Nil(t, err)
 
 	decrypted, err := secret.DecryptAESGCM(key1, iv1, ciphertext1, nil)
@@ -171,13 +171,13 @@ func TestAESGCM_WithBase64Kwowns1(t *testing.T) {
 }
 
 func TestAESGCM_WithBase64Kwowns2(t *testing.T) {
-	key2, err := data.Decode64Bytes(key64_2)
+	key2, err := datum.Decode64Bytes(key64_2)
 	assert.Nil(t, err)
-	iv2, err := data.Decode64Bytes(iv64_2)
+	iv2, err := datum.Decode64Bytes(iv64_2)
 	assert.Nil(t, err)
-	ciphertext2, err := data.Decode64Bytes(ciphertext64_2)
+	ciphertext2, err := datum.Decode64Bytes(ciphertext64_2)
 	assert.Nil(t, err)
-	additionalData2,err:= data.Decode64Bytes(additionalData64_2)
+	additionalData2,err:= datum.Decode64Bytes(additionalData64_2)
 	assert.Nil(t, err)
 	decrypted, err := secret.DecryptAESGCM(key2, iv2, ciphertext2, additionalData2)
 	assert.Nil(t, err)

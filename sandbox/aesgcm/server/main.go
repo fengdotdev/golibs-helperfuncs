@@ -8,7 +8,7 @@ import (
 	"net"
 	"net/http"
 
-	"github.com/fengdotdev/golibs-helperfuncs/data"
+	"github.com/fengdotdev/golibs-helperfuncs/datum"
 	"github.com/fengdotdev/golibs-helperfuncs/secret"
 )
 
@@ -17,7 +17,7 @@ func ENCODED(w http.ResponseWriter, r *http.Request) {
 	///----ONLY FOR TESTING PURPOSES
 	queryValue := r.URL.Query().Get("key")
 	fmt.Println("key64: ", queryValue)
-	key, err := data.Decode64Bytes(queryValue)
+	key, err := datum.Decode64Bytes(queryValue)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -60,7 +60,7 @@ func ENCODED(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("additionaldata: ", payload.Additionaldata)
 
 	addjson, err := payload.GetAdditionalDataAsBinary()
-	fmt.Println("additionaldata as binary64: ", data.Encode64Bytes(addjson))
+	fmt.Println("additionaldata as binary64: ", datum.Encode64Bytes(addjson))
 
 	if err != nil {
 		fmt.Println(err)

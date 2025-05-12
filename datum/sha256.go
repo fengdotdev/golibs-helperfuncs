@@ -1,4 +1,4 @@
-package data
+package datum
 
 import (
 	"crypto/sha256"

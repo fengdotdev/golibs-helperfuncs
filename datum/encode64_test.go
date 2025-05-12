@@ -1,4 +1,4 @@
-package data_test
+package datum_test
 
 import (
 	"bytes"
@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/fengdotdev/golibs-helperfuncs/data"
+	"github.com/fengdotdev/golibs-helperfuncs/datum"
 	"github.com/fengdotdev/golibs-testing/assert"
 )
 
@@ -23,22 +23,22 @@ const (
 )
 
 func TestEncode64(t *testing.T) {
-	assert.Equal(t, encode64Foo, data.Encode64(txt64Foo))
-	assert.Equal(t, encode64Empty, data.Encode64(txt64Empty))
-	assert.Equal(t, encode64Foobar, data.Encode64(txt64Foobar))
-	assert.Equal(t, encode64F, data.Encode64(txt64F))
+	assert.Equal(t, encode64Foo, datum.Encode64(txt64Foo))
+	assert.Equal(t, encode64Empty, datum.Encode64(txt64Empty))
+	assert.Equal(t, encode64Foobar, datum.Encode64(txt64Foobar))
+	assert.Equal(t, encode64F, datum.Encode64(txt64F))
 }
 
 func TestEncode64Bytes(t *testing.T) {
 
 	b := []byte(txt64Foo)
-	assert.Equal(t, encode64Foo, data.Encode64Bytes(b))
+	assert.Equal(t, encode64Foo, datum.Encode64Bytes(b))
 
 	b = []byte(txt64Empty)
-	assert.Equal(t, encode64Empty, data.Encode64Bytes(b))
+	assert.Equal(t, encode64Empty, datum.Encode64Bytes(b))
 
 	b = []byte(txt64Foobar)
-	assert.Equal(t, encode64Foobar, data.Encode64Bytes(b))
+	assert.Equal(t, encode64Foobar, datum.Encode64Bytes(b))
 
 	//hex sample
 	{
@@ -49,10 +49,10 @@ func TestEncode64Bytes(t *testing.T) {
 		hex.Encode(encodehex, src)
 
 		//encode
-		encodeHelloGopher := data.Encode64Bytes(encodehex)
+		encodeHelloGopher := datum.Encode64Bytes(encodehex)
 
 		//decode
-		decodeHelloGopher, err := data.Decode64Bytes(encodeHelloGopher)
+		decodeHelloGopher, err := datum.Decode64Bytes(encodeHelloGopher)
 		assert.Nil(t, err)
 
 		if !bytes.Equal(encodehex, decodeHelloGopher) {
@@ -90,10 +90,10 @@ func TestEncode64Bytes(t *testing.T) {
 			f.Close()
 
 			//encode
-			encodeFile := data.Encode64Bytes(filedata)
+			encodeFile := datum.Encode64Bytes(filedata)
 
 			//decode
-			decodeFile, err := data.Decode64Bytes(encodeFile)
+			decodeFile, err := datum.Decode64Bytes(encodeFile)
 			assert.Nil(t, err)
 
 			if !bytes.Equal(filedata, decodeFile) {
@@ -106,29 +106,29 @@ func TestEncode64Bytes(t *testing.T) {
 }
 
 func TestDecode64(t *testing.T) {
-	decode, err := data.Decode64(encode64Foo)
+	decode, err := datum.Decode64(encode64Foo)
 	assert.Nil(t, err)
 	assert.Equal(t, txt64Foo, decode)
 
-	decode, err = data.Decode64(encode64Empty)
+	decode, err = datum.Decode64(encode64Empty)
 	assert.Nil(t, err)
 	assert.Equal(t, txt64Empty, decode)
 
-	decode, err = data.Decode64(encode64Foobar)
+	decode, err = datum.Decode64(encode64Foobar)
 	assert.Nil(t, err)
 	assert.Equal(t, txt64Foobar, decode)
 }
 
 func TestDecode64Bytes(t *testing.T) {
-	decode, err := data.Decode64Bytes(encode64Foo)
+	decode, err := datum.Decode64Bytes(encode64Foo)
 	assert.Nil(t, err)
 	assert.Equal(t, txt64Foo, string(decode))
 
-	decode, err = data.Decode64Bytes(encode64Empty)
+	decode, err = datum.Decode64Bytes(encode64Empty)
 	assert.Nil(t, err)
 	assert.Equal(t, txt64Empty, string(decode))
 
-	decode, err = data.Decode64Bytes(encode64Foobar)
+	decode, err = datum.Decode64Bytes(encode64Foobar)
 	assert.Nil(t, err)
 	assert.Equal(t, txt64Foobar, string(decode))
 

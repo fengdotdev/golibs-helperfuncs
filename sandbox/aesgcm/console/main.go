@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/fengdotdev/golibs-helperfuncs/data"
+	"github.com/fengdotdev/golibs-helperfuncs/datum"
 	"github.com/fengdotdev/golibs-helperfuncs/secret"
 )
 
@@ -21,8 +21,8 @@ func main() {
 		panic(err)
 	}
 
-	iv64 := data.Encode64Bytes(iv)
-	key64 := data.Encode64Bytes(key)
+	iv64 := datum.Encode64Bytes(iv)
+	key64 := datum.Encode64Bytes(key)
 
 	fmt.Println("Key:", key64)
 	fmt.Println("IV:", iv64)
@@ -36,7 +36,7 @@ func main() {
 		panic("cipher err" + err.Error())
 	}
 
-	ciphertext64 := data.Encode64Bytes(ciphertext)
+	ciphertext64 := datum.Encode64Bytes(ciphertext)
 
 	fmt.Println("Ciphertext:", ciphertext64)
 
