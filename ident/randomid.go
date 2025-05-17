@@ -1,4 +1,4 @@
-package unique
+package ident
 
 import (
 	"crypto/sha256"

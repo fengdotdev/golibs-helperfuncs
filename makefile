@@ -1,5 +1,5 @@
 # for updating the version of the project and pushing the tag to the repository
-VERSION = 1.0.0
+VERSION = 2.0.0
 
 updatev:
 		git tag v${VERSION} && git push origin v${VERSION}
