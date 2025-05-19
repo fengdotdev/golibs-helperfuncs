@@ -1,5 +1,5 @@
 # for updating the version of the project and pushing the tag to the repository
-VERSION = 2.0.1
+VERSION = 2.0.2
 
 MODULE_NAME = github.com/fengdotdev/golibs-helperfuncs
 
