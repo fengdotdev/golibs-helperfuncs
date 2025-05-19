@@ -1,7 +1,7 @@
 # for updating the version of the project and pushing the tag to the repository
-VERSION = 2.0.0
+VERSION = 2.0.1
 
-MODULE_NAME := github.com/fengdotdev/golibs-helperfuncs
+MODULE_NAME = github.com/fengdotdev/golibs-helperfuncs
 
 #my GOLIBS For all projects 
 TRAITS = github.com/fengdotdev/golibs-traits

@@ -8,8 +8,8 @@ import (
 	"net"
 	"net/http"
 
-	"github.com/fengdotdev/golibs-helperfuncs/datum"
-	"github.com/fengdotdev/golibs-helperfuncs/secret"
+	"github.com/fengdotdev/golibs-helperfuncs/v2/datum"
+	"github.com/fengdotdev/golibs-helperfuncs/v2/secret"
 )
 
 func ENCODED(w http.ResponseWriter, r *http.Request) {
